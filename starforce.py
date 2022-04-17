@@ -43,6 +43,73 @@ class StarForceTransitionMatrix(markov.MarkovTransitionMatrix):
         return self._transition_matrix
 
 
+class StarForceCost:
+    def __init__(self, item_lv: int, mvp: str="bronze", pc_room: bool=False,
+                 event30: bool=False, prevent1216=(False, False, False, False, False)):
+        self._reward = self._make_reward_array(item_lv, mvp, pc_room, event30, prevent1216)
+
+    @staticmethod
+    def _make_reward_array(item_lv: int, mvp: str, pc_room: bool,
+                           event30: bool, prevent1216: tuple) -> np.ndarray:
+        # 기본비용
+        rewards = np.zeros(25, dtype=int)
+        for i in range(0, 10):
+            rewards[i] = int(round(1000 + item_lv**3 * (i + 1) / 25, ndigits=-2))
+        for i in range(10, 15):
+            rewards[i] = int(round(1000 + item_lv**3 * (i + 1)**2.7 / 400, ndigits=-2))
+        for i in range(15, 25):
+            rewards[i] = int(round(1000 + item_lv**3 * (i + 1)**2.7 / 200, ndigits=-2))
+
+        modified = rewards.copy()
+
+        def ratio_discount(_rewards: np.ndarray, ratio: float):
+            discounted = _rewards * ratio
+            discounted = discounted.round(-2).astype(int)
+            return discounted
+
+        # mvp 할인과 pc방 할인은 합 적용
+        if mvp == "bronze":
+            if pc_room:
+                modified[:17] = ratio_discount(modified[:17], 0.95)
+            else:
+                pass
+        elif mvp == "silver":
+            if pc_room:
+                modified[:17] = ratio_discount(modified[:17], 0.92)
+            else:
+                modified[:17] = ratio_discount(modified[:17], 0.97)
+        elif mvp == "gold":
+            if pc_room:
+                modified[:17] = ratio_discount(modified[:17], 0.9)
+            else:
+                modified[:17] = ratio_discount(modified[:17], 0.95)
+        elif (mvp == "diamond") | (mvp == "red"):
+            if pc_room:
+                modified[:17] = ratio_discount(modified[:17], 0.85)
+            else:
+                modified[:17] = ratio_discount(modified[:17], 0.9)
+        else:
+            raise ValueError("Parameter 'mvp' should be one of ['bronze', 'silver', 'gold', 'diamond', 'red'].")
+
+        # 전구간 30% 할인
+        if event30:
+            modified = ratio_discount(modified, 0.7)
+        else:
+            pass
+
+        # 파괴방지 : 할인된 금액에 기본비용의 100%를 더한 값
+        for i in range(len(prevent1216)):
+            if prevent1216[i]:
+                star = i + 12
+                modified[star] += rewards
+
+        return modified
+
+    @property
+    def reward(self):
+        return self._reward
+
+
 if __name__ == "__main__":
     import pandas as pd
     pd.set_option('display.max_columns', None)
@@ -57,3 +124,8 @@ if __name__ == "__main__":
     starforce_transition_matrix_class2 = StarForceTransitionMatrix(absorbing_stage=GOAL, event1plus1=True)
     P2 = starforce_transition_matrix_class2.transition_matrix
     print(pd.DataFrame(P2)*100)
+
+    cost150 = StarForceCost(item_lv=150, mvp="gold", event30=True).reward
+    df = pd.DataFrame(cost150, columns=["cost"])
+    df.index.name = "from"
+    print(df)
