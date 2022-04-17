@@ -38,24 +38,56 @@ class MarkovFundamentalMatrix:
         return self._fundamental_matrix
 
 
-class MarkovStatistic:
-    """Markov Chain 평균, (분산) 계산"""
-    def __init__(self, transition_matrix_class: MarkovTransitionMatrix):
-        self._transition_matrix = transition_matrix_class.transition_matrix.copy()
-        self._fundamental_matrix = MarkovFundamentalMatrix(transition_matrix_class).fundamental_matrix
-        self._STATISTICS = self._make_statistics_df()
+class MarkovReward:
+    """expected total reward before absorption"""
+    def __init__(self, transition_matrix_class: MarkovTransitionMatrix, reward: np.ndarray, col_name: str):
+        self._fundamental_matrix = MarkovFundamentalMatrix(transition_matrix_class).fundamental_matrix.copy()
+        differential_expected_reward_before_absorption = self._expected_reward_array_for_next_step(reward)
+        self._TOTAL_REWARD = pd.DataFrame(data=differential_expected_reward_before_absorption, columns=[col_name])
+        self._TOTAL_REWARD.index.name = 'from'
 
-    def _make_mean_list(self) -> np.ndarray:
-        means_to_absorbing_stage = np.array([sum(row) for row in self._fundamental_matrix])
-        temp = np.append(arr=means_to_absorbing_stage[1:], values=0.)
-        return means_to_absorbing_stage - temp
-
-    def _make_statistics_df(self) -> pd.DataFrame:
-        df = pd.DataFrame()
-        df.index.name = "from"
-        df["mean"] = self._make_mean_list()
-        return df
+    def _expected_reward_array_for_next_step(self, reward: np.ndarray) -> np.ndarray:
+        cumulative_expected_reward = self._fundamental_matrix @ reward
+        differential_expected_reward_before_absorption = - np.diff(a=cumulative_expected_reward, append=0)
+        return differential_expected_reward_before_absorption
 
     @property
-    def STATISTICS(self):
-        return self._STATISTICS
+    def TOTAL_REWARD(self) -> pd.DataFrame:
+        return self._TOTAL_REWARD
+
+
+class MarkovMean:
+    """expected total (try) times before absorption : special class of MarkovReward
+    Because of using MarkovReward class, this is not optimized considering round-off error.
+    Summation of row of N is better than calculating N @ 1."""
+    def __init__(self, transition_matrix_class: MarkovTransitionMatrix):
+        _fundamental_matrix = MarkovFundamentalMatrix(transition_matrix_class).fundamental_matrix
+        reward = np.ones(len(_fundamental_matrix[0]), dtype=float)
+        self._MEAN_DF = MarkovReward(transition_matrix_class, reward, "expected times").TOTAL_REWARD
+
+    @property
+    def MEAN_DF(self) -> pd.DataFrame:
+        return self._MEAN_DF
+
+
+# class MarkovStatistic:
+#     """Markov Chain 평균, (분산) 계산"""
+#     def __init__(self, transition_matrix_class: MarkovTransitionMatrix):
+#         self._transition_matrix = transition_matrix_class.transition_matrix.copy()
+#         self._fundamental_matrix = MarkovFundamentalMatrix(transition_matrix_class).fundamental_matrix
+#         self._STATISTICS = self._make_statistics_df()
+#
+#     def _make_expected_time_list(self) -> np.ndarray:
+#         means_to_absorbing_stage = np.array([sum(row) for row in self._fundamental_matrix])
+#         temp = np.append(arr=means_to_absorbing_stage[1:], values=0.)
+#         return means_to_absorbing_stage - temp
+#
+#     def _make_statistics_df(self) -> pd.DataFrame:
+#         df = pd.DataFrame()
+#         df.index.name = "from"
+#         df["expected time"] = self._make_expected_time_list()
+#         return df
+#
+#     @property
+#     def STATISTICS(self):
+#         return self._STATISTICS

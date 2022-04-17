@@ -1,4 +1,3 @@
-import simulation
 import sys
 import numpy
 
@@ -93,3 +92,9 @@ print(try_for_next_step)
 
 for start in range(len(try_for_next_step)):
     print(f"start from {start}, expected try for the next level is {try_for_next_step[start]}")
+
+arr = numpy.array([20, 19, 17, 14, 10, 5, -1]) + 1 + 7
+print("arr: ", arr)
+print("diff:", numpy.diff(arr))
+print("diff:", numpy.diff(a=arr, append=0))
+print("-diff:", -numpy.diff(a=arr, append=0))

@@ -28,21 +28,8 @@ class GameMangTransitionMatrix(markov.MarkovTransitionMatrix):
 
 
 if __name__ == "__main__":
-    GOAL = 13
+    GOAL = 20
     gamemang_transition_matrix_class = GameMangTransitionMatrix(absorbing_stage=GOAL, water=False)
-    gamemang_statistics = markov.MarkovStatistic(gamemang_transition_matrix_class)
-    no_water_df = gamemang_statistics.STATISTICS
-    print("NO WATER: \n", no_water_df)
-    print()
-
-    gamemang_transition_matrix_class2 = GameMangTransitionMatrix(absorbing_stage=GOAL, water=True)
-    gamemang_statistics2 = markov.MarkovStatistic(gamemang_transition_matrix_class2)
-    yes_water_df = gamemang_statistics2.STATISTICS
-    print("YES WATER: \n", yes_water_df)
-    print()
-
-    print(table.GameMangTable(water=True).prob_table)
-    print()
-
-    no_water_is_cheap = no_water_df - 10 * yes_water_df
-    print(no_water_is_cheap)
+    gamemang_mean = markov.MarkovMean(gamemang_transition_matrix_class)
+    no_water_df = gamemang_mean.MEAN_DF
+    print("NO WATER ver2: \n", no_water_df)
