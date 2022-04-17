@@ -20,6 +20,16 @@ class MarkovTransitionMatrix(ABC):
             if abs(sum(row) - 1.0) > 0.001 / 100:
                 raise ValueError("The transition matrix is WRONG.")
 
+    def print_transition_matrix(self):
+        pd.options.display.max_columns = None
+        pd.options.display.expand_frame_repr = False
+        pd.options.display.float_format = '{:.2f}'.format
+        df = pd.DataFrame(self.transition_matrix).replace(0., "")
+        print(df * 100)
+        pd.reset_option("display.max_columns")
+        pd.reset_option("display.expand_frame_repr")
+        pd.reset_option("display.float_format")
+
 
 class MarkovFundamentalMatrix:
     """Fundamental Matrix N = (I - Q)^(-1) 생성, where Q : sub-matrix of P"""
