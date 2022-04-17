@@ -31,5 +31,5 @@ if __name__ == "__main__":
     GOAL = 20
     gamemang_transition_matrix_class = GameMangTransitionMatrix(absorbing_stage=GOAL, water=False)
     gamemang_mean = markov.MarkovMean(gamemang_transition_matrix_class)
-    no_water_df = gamemang_mean.MEAN_DF
+    no_water_df = gamemang_mean.mean_df
     print("NO WATER ver2: \n", no_water_df)

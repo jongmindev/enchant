@@ -43,8 +43,8 @@ class MarkovReward:
     def __init__(self, transition_matrix_class: MarkovTransitionMatrix, reward: np.ndarray, col_name: str):
         self._fundamental_matrix = MarkovFundamentalMatrix(transition_matrix_class).fundamental_matrix.copy()
         differential_expected_reward_before_absorption = self._expected_reward_array_for_next_step(reward)
-        self._TOTAL_REWARD = pd.DataFrame(data=differential_expected_reward_before_absorption, columns=[col_name])
-        self._TOTAL_REWARD.index.name = 'from'
+        self._total_reward_df = pd.DataFrame(data=differential_expected_reward_before_absorption, columns=[col_name])
+        self._total_reward_df.index.name = 'from'
 
     def _expected_reward_array_for_next_step(self, reward: np.ndarray) -> np.ndarray:
         cumulative_expected_reward = self._fundamental_matrix @ reward
@@ -52,8 +52,8 @@ class MarkovReward:
         return differential_expected_reward_before_absorption
 
     @property
-    def TOTAL_REWARD(self) -> pd.DataFrame:
-        return self._TOTAL_REWARD
+    def total_reward_df(self) -> pd.DataFrame:
+        return self._total_reward_df
 
 
 class MarkovMean:
@@ -63,11 +63,11 @@ class MarkovMean:
     def __init__(self, transition_matrix_class: MarkovTransitionMatrix):
         _fundamental_matrix = MarkovFundamentalMatrix(transition_matrix_class).fundamental_matrix
         reward = np.ones(len(_fundamental_matrix[0]), dtype=float)
-        self._MEAN_DF = MarkovReward(transition_matrix_class, reward, "expected times").TOTAL_REWARD
+        self._mean_df = MarkovReward(transition_matrix_class, reward, "expected times").total_reward_df
 
     @property
-    def MEAN_DF(self) -> pd.DataFrame:
-        return self._MEAN_DF
+    def mean_df(self) -> pd.DataFrame:
+        return self._mean_df
 
 
 # class MarkovStatistic:

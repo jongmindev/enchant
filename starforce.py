@@ -5,7 +5,7 @@ import numpy as np
 
 class StarForceTransitionMatrix(markov.MarkovTransitionMatrix):
     def __init__(self, absorbing_stage, starcatch=False, prevent1216=(False, False, False, False, False),
-                 event51015=False, event1plus1: bool=False):
+                 event51015=False, event1plus1: bool = False):
         self._transition_matrix = self._make_transition_matrix(absorbing_stage,
                                                                starcatch, prevent1216, event51015, event1plus1)
         self._transition_matrix_validation()
@@ -44,8 +44,8 @@ class StarForceTransitionMatrix(markov.MarkovTransitionMatrix):
 
 
 class StarForceCost:
-    def __init__(self, item_lv: int, mvp: str="bronze", pc_room: bool=False,
-                 event30: bool=False, prevent1216=(False, False, False, False, False)):
+    def __init__(self, item_lv: int, mvp: str = "bronze", pc_room: bool = False,
+                 event30: bool = False, prevent1216=(False, False, False, False, False)):
         self._reward = self._make_reward_array(item_lv, mvp, pc_room, event30, prevent1216)
 
     @staticmethod
