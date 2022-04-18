@@ -88,9 +88,10 @@ if __name__ == "__main__":
     GameMangCalculator(goal=20, water=False).print_interval_cost()
     StarForceCalculator(goal=22, item_lv=160).print_interval_cost()
     StarForceCalculator(goal=13, item_lv=160).print_interval_cost()
-    cost22 = StarForceCalculator(goal=22, item_lv=160).interval_cost[:13]
-    cost13 = StarForceCalculator(goal=13, item_lv=160).interval_cost
-    print(abs(cost13 - cost22))
-    starforce.StarForceTransitionMatrix(absorbing_stage=22).print_transition_matrix()
-    starforce.StarForceTransitionMatrix(absorbing_stage=13).print_transition_matrix()
-    print(pd.DataFrame(starforce.StarForceCost(160).reward))
+    # cost22 = StarForceCalculator(goal=22, item_lv=160).interval_cost[:13]
+    # cost13 = StarForceCalculator(goal=13, item_lv=160).interval_cost
+    # print(abs(cost13 - cost22))
+    # starforce.StarForceTransitionMatrix(absorbing_stage=22).print_transition_matrix()
+    # starforce.StarForceTransitionMatrix(absorbing_stage=13).print_transition_matrix()
+    # print(pd.DataFrame(starforce.StarForceCost(160).reward))
+    # StarForceCalculator(goal=22, item_lv=160, prevent1216=(True, True, True, True, True,)).print_interval_cost()

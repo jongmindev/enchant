@@ -1,6 +1,7 @@
 import markov
 import table
 import numpy as np
+import pandas as pd
 
 
 class StarForceTransitionMatrix(markov.MarkovTransitionMatrix):
@@ -101,13 +102,16 @@ class StarForceCost:
         for i in range(len(prevent1216)):
             if prevent1216[i]:
                 star = i + 12
-                modified[star] += rewards
+                modified[star] += rewards[star]
 
         return modified
 
     @property
     def reward(self):
         return self._reward
+
+    def reward_df(self) -> pd.DataFrame:
+        return pd.DataFrame(self._reward).rename(columns={0: "interval_cost"})
 
 
 if __name__ == "__main__":
