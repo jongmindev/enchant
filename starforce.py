@@ -1,4 +1,4 @@
-import markov
+import markovchain
 import table
 import numpy as np
 import pandas as pd

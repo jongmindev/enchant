@@ -1,4 +1,4 @@
-import markov
+import markovchain
 import gamemang
 import starforce
 import pandas as pd
@@ -95,3 +95,5 @@ if __name__ == "__main__":
     # starforce.StarForceTransitionMatrix(absorbing_stage=13).print_transition_matrix()
     # print(pd.DataFrame(starforce.StarForceCost(160).reward))
     # StarForceCalculator(goal=22, item_lv=160, prevent1216=(True, True, True, True, True,)).print_interval_cost()
+    tester = StarForceCalculator(goal=22, item_lv=160)
+    print(tester.interval_cost.cumulative)
