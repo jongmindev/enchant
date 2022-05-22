@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 
-class StarForceTransitionMatrix(markov.MarkovTransitionMatrix):
+class StarForceTransitionMatrix(markovchain.MarkovTransitionMatrix):
     def __init__(self, absorbing_stage, starcatch=False, prevent1216=(False, False, False, False, False),
                  event51015=False, event1plus1: bool = False):
         self._transition_matrix = self._make_transition_matrix(absorbing_stage,
@@ -121,7 +121,7 @@ if __name__ == "__main__":
 
     GOAL = 25
 
-    starforce_transition_matrix_class = StarForceTransitionMatrix(absorbing_stage=GOAL)
+    starforce_transition_matrix_class = StarForceTransitionMatrix(absorbing_stage=18, starcatch=True)
     P = starforce_transition_matrix_class.transition_matrix
     print(pd.DataFrame(P)*100)
 
@@ -129,7 +129,8 @@ if __name__ == "__main__":
     P2 = starforce_transition_matrix_class2.transition_matrix
     print(pd.DataFrame(P2)*100)
 
-    cost150 = StarForceCost(item_lv=150, mvp="gold", event30=True).reward
-    df = pd.DataFrame(cost150, columns=["cost"])
+    cost160 = StarForceCost(item_lv=160, mvp="bronze", pc_room=False, event30=True,
+                            prevent1216=(False, False, False, False, False)).reward
+    df = pd.DataFrame(cost160, columns=["cost"])
     df.index.name = "from"
     print(df)

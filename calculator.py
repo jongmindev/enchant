@@ -23,9 +23,9 @@ class GameMangCalculator(Calculator):
         if water is None:
             transition_no = gamemang.GameMangTransitionMatrix(absorbing_stage=goal, water=False)
             transition_yes = gamemang.GameMangTransitionMatrix(absorbing_stage=goal, water=True)
-            cost_no = markov.MarkovMean(transition_no).mean_df
+            cost_no = markovchain.MarkovMean(transition_no).mean_df
             cost_no.rename(columns={cost_no.columns[0]: "no water"}, inplace=True)
-            cost_yes = markov.MarkovMean(transition_yes).mean_df
+            cost_yes = markovchain.MarkovMean(transition_yes).mean_df
             cost_yes.rename(columns={cost_yes.columns[0]: "yes water"}, inplace=True)
             cost_yes.iloc[3:, -1] *= 10
             merged = pd.merge(cost_no, cost_yes, left_index=True, right_index=True)
@@ -35,7 +35,7 @@ class GameMangCalculator(Calculator):
             self._interval_cost = merged
         else:
             transition = gamemang.GameMangTransitionMatrix(absorbing_stage=goal, water=water)
-            self._interval_cost = markov.MarkovMean(transition).mean_df.copy()
+            self._interval_cost = markovchain.MarkovMean(transition).mean_df.copy()
             if water:
                 self._interval_cost.rename(columns={self._interval_cost.columns[0]: "yes water"}, inplace=True)
                 self._interval_cost.iloc[3:, -1] *= 10
@@ -65,7 +65,7 @@ class StarForceCalculator(Calculator):
                  prevent1216: tuple = (False, False, False, False, False)):
         transition = starforce.StarForceTransitionMatrix(goal, starcatch, prevent1216, event51015, event1plus1)
         cost_per_1 = starforce.StarForceCost(item_lv, mvp, pc_room, event30, prevent1216).reward[:goal]
-        interval_cost_protype = markov.MarkovReward(transition, cost_per_1, "Expected Interval Cost").total_reward_df
+        interval_cost_protype = markovchain.MarkovReward(transition, cost_per_1, "Expected Interval Cost").total_reward_df
         self._interval_cost_prototype = interval_cost_protype
         # 기대 파괴횟수 : 미구현
         expected_destroy_times = 0
@@ -97,3 +97,13 @@ if __name__ == "__main__":
     # StarForceCalculator(goal=22, item_lv=160, prevent1216=(True, True, True, True, True,)).print_interval_cost()
     tester = StarForceCalculator(goal=22, item_lv=160)
     print(tester.interval_cost.cumulative)
+
+    StarForceCalculator(goal=22, item_lv=160, base_price=0,
+                        starcatch=True, mvp="bronze", pc_room=False,
+                        event30=True, event51015=False, event1plus1=False,
+                        prevent1216=(False, False, False, False, False)).print_interval_cost()
+
+    StarForceCalculator(goal=22, item_lv=160, base_price=0,
+                        starcatch=True, mvp="bronze", pc_room=False,
+                        event30=False, event51015=False, event1plus1=False,
+                        prevent1216=(False, False, False, False, False)).print_interval_cost()
