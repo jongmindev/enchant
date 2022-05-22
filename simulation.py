@@ -84,7 +84,7 @@ class StarforceSimulatorVer2:
                  starcatch: bool = False, event51015: bool = False,
                  prevent1216: tuple = (False, False, False, False, False),
                  mvp: str = "bronze", pc_room: bool = False, event30: bool = False, event1plus1: bool = False):
-        self.table = table.StarForceTable(starcatch, prevent1216, event51015).get_modified_table()
+        self.table = table.StarForceTable(starcatch, prevent1216, event51015).prob_table
         self.interval_cost = starforce.StarForceCost(item_lv, mvp, pc_room, event30, prevent1216).reward_df()
         self.information = pd.merge(self.table, self.interval_cost, left_index=True, right_index=True)
         self.reduced_cost = (self.interval_cost / 1000).astype(int)
@@ -155,18 +155,21 @@ class StarforceSimulatorVer2:
     def draw_mean_graph(self, means: np.ndarray | None = None, guide_line: bool = False):
         if means is None:
             if self.simulated_reduced_cost is None:
-                plt.plot(self.realtime_reduced_mean() / 1000 / 1000)
+                plt.plot(self.realtime_reduced_mean() / 1000 / 1000,
+                         label='induced by simulation')
             else:
-                plt.plot(self.simulated_reduced_cost / 1000 / 1000)
+                plt.plot(self.simulated_reduced_cost / 1000 / 1000,
+                         label='induced by simulation')
         else:
             plt.plot(means/1000/1000)
 
         markov_mean = self.markov_class.interval_cost["cumulative"].iloc[-1] / 1000 / 1000 / 1000
         if guide_line:
-            plt.axhline(y=markov_mean, color='r', linestyle='-')
+            plt.axhline(y=markov_mean, color='r', linestyle='-', label='induced by MRP')
         plt.xlabel('iteration')
         plt.ylabel('sample mean(Billion)')
         plt.ylim(plt.ylim()[0], min(plt.ylim()[1], markov_mean * 2))
+        plt.legend()
         plt.show()
 
 
@@ -199,11 +202,13 @@ if __name__ == "__main__":
     performance_comparison()
 
     # ver2 로 그래프 그리기
-    simulator = StarforceSimulatorVer2(0, 22, 160)
+    simulator = StarforceSimulatorVer2(start=0, goal=22, item_lv=160, base_price=0, starcatch=True, event30=True)
     simulator.realtime_reduced_mean(iteration=3000)
     simulator.draw_mean_graph(guide_line=True)
 
     # 장비파괴비용 고려하는 경우 오차의 정도
-    destroy_cost_simulator = StarforceSimulatorVer2(start=0, goal=22, item_lv=160, base_price=100000000)
+    destroy_cost_simulator = StarforceSimulatorVer2(start=0, goal=22, item_lv=160,
+                                                    base_price=100000000, starcatch=False, event30=True)
     destroy_cost_simulator.realtime_reduced_mean(iteration=3000)
     destroy_cost_simulator.draw_mean_graph(guide_line=True)
+    print(destroy_cost_simulator.table)
