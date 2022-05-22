@@ -15,6 +15,7 @@ class MarkovTransitionMatrix(ABC):
     def transition_matrix(self) -> np.ndarray:
         pass
 
+    # transition matrix 가 잘 만들어졌는지 확인하는 method : 각 행의 합이 1이 맞는지
     def _transition_matrix_validation(self):
         for row in self.transition_matrix:
             if abs(sum(row) - 1.0) > 0.001 / 100:
@@ -78,26 +79,3 @@ class MarkovMean:
     @property
     def mean_df(self) -> pd.DataFrame:
         return self._mean_df
-
-
-# class MarkovStatistic:
-#     """Markov Chain 평균, (분산) 계산"""
-#     def __init__(self, transition_matrix_class: MarkovTransitionMatrix):
-#         self._transition_matrix = transition_matrix_class.transition_matrix.copy()
-#         self._fundamental_matrix = MarkovFundamentalMatrix(transition_matrix_class).fundamental_matrix
-#         self._STATISTICS = self._make_statistics_df()
-#
-#     def _make_expected_time_list(self) -> np.ndarray:
-#         means_to_absorbing_stage = np.array([sum(row) for row in self._fundamental_matrix])
-#         temp = np.append(arr=means_to_absorbing_stage[1:], values=0.)
-#         return means_to_absorbing_stage - temp
-#
-#     def _make_statistics_df(self) -> pd.DataFrame:
-#         df = pd.DataFrame()
-#         df.index.name = "from"
-#         df["expected time"] = self._make_expected_time_list()
-#         return df
-#
-#     @property
-#     def STATISTICS(self):
-#         return self._STATISTICS
