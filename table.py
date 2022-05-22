@@ -2,12 +2,14 @@ import pandas as pd
 from abc import ABC, abstractmethod
 
 
+# 각 강화시스템에 맞는 확률표를 만들기 위한 abstract class
 class ProbabilityTable(ABC):
     @property
     @abstractmethod
     def prob_table(self) -> pd.DataFrame:
         pass
 
+    # 확률표가 잘 만들어졌는지 확인하는 method : 각 단계별 상승·유지·하락·파괴 확률의 합이 1이 맞는지
     def _table_validation(self):
         for iterrow in self.prob_table.iterrows():
             row = iterrow[1]
@@ -15,19 +17,19 @@ class ProbabilityTable(ABC):
                 raise ValueError("The probability table is WRONG.")
 
 
+# '겜망' 강화시스템의 확률표를 만들기 위한 class
 class GameMangTable(ProbabilityTable):
     standard_table = pd.read_csv("data/gamemang_elementary_table.csv", index_col=["from"])
 
     def __init__(self, water=False):
         self._prob_table = GameMangTable.get_modified_table(water)
         self._table_validation()
-        # 아래 코드 : 오류발생 (TypeError: table_validation() missing 1 required positional argument: 'self')
-        # ProbabilityTable.table_validation()
 
     @property
     def prob_table(self) -> pd.DataFrame:
         return self._prob_table
 
+    # 단순 시각화
     @classmethod
     def get_modified_table(cls, water=False) -> pd.DataFrame:
         modified = GameMangTable.standard_table.copy()
@@ -39,6 +41,7 @@ class GameMangTable(ProbabilityTable):
         return modified
 
 
+# 스타포스의 확률표를 만들기 위한 class
 class StarForceTable(ProbabilityTable):
     standard_table = pd.read_csv("data/starforce_elementary_table.csv", index_col=["from"])
 
@@ -98,6 +101,7 @@ class StarForceTable(ProbabilityTable):
         modified.loc[21:24] = 1 - up_modified.loc[21:24] - destroy_modified.loc[21:24]
         return modified
 
+    # 단순 시각화
     @classmethod
     def get_modified_table(cls, starcatch=False, prevent1216=(False, False, False, False, False), event51015=False):
         total_modified = StarForceTable.standard_table.copy()
